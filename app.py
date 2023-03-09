@@ -29,6 +29,13 @@ def get_first_question():
 def get_question(q_num):
     """ shows question form """
 
-    return render_template('question.html', question=survey.questions[q_num])
+    return render_template('question.html', question=survey.questions[q_num], q_num=q_num)
 
-# @app.post('/answer')
+@app.post('/answer')
+def display_next_question():
+    """ redirects to next question """
+    previous_q_num = int(request.form['q_num'])
+    next_q_num = previous_q_num + 1
+    next_q_url = f'/questions/{next_q_num}'
+
+    return redirect(next_q_url)
