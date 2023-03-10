@@ -31,11 +31,29 @@ def get_question(q_num):
 
     return render_template('question.html', question=survey.questions[q_num], q_num=q_num)
 
+
 @app.post('/answer')
 def display_next_question():
-    """ redirects to next question """
-    previous_q_num = int(request.form['q_num'])
-    next_q_num = previous_q_num + 1
+    """ redirects to next question or thank you pg. """
+
+    RESPONSES.append(request.form['answer'])
+    q_num = int(request.form['q_num'])
+
+    # redirects to thank you pg. after last question
+    if q_num >= len(survey.questions) - 1:
+        return redirect("/completion")
+
+    # go to next question
+    next_q_num = q_num + 1
     next_q_url = f'/questions/{next_q_num}'
 
     return redirect(next_q_url)
+
+
+@app.get('/completion')
+def get_thank_you():
+    """ loads thank you page with q's and a's """
+
+    survey_length = len(survey.questions)
+
+    return render_template('completion.html', survey=survey, survey_length=survey_length, responses=RESPONSES)
