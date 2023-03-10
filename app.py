@@ -27,8 +27,6 @@ def get_start():
 def get_first_question():
     """ on start btn click, redirect to first question """
 
-    # TODO: clear the old responses with the clear method
-
     return redirect('/questions/0')
 
 
@@ -36,14 +34,26 @@ def get_first_question():
 def get_question(q_num):
     """ shows question form """
 
+    if len(session['responses']) == len(survey.questions):
+        flash('You have already completed this survey.')
+        return redirect('/completion')
+
     if q_num != len(session['responses']):
         q_num = len(session['responses'])
         next_url = f'/questions/{q_num}'
 
+        print(q_num, len(session['responses']))
+
+        # QUESTION - why are we receiving our flash messages on questions 2+ (works for q 1)
+        flash('You are trying to access an invalid question')
         return redirect(next_url)
+
     else:
-        return render_template('question.html', question=survey.questions[q_num])
-    # TODO: break these into separate lines
+        return render_template(
+            'question.html',
+            question=survey.questions[q_num]
+            )
+
 
 @app.post('/answer')
 def display_next_question():
@@ -56,6 +66,7 @@ def display_next_question():
 
     q_num = len(session['responses'])
     # TODO: try grabbing this number from the current length of the responses var
+
 
     # redirects to thank you pg. after last question
     if q_num >= len(survey.questions):
@@ -74,6 +85,9 @@ def get_thank_you():
 
     survey_length = len(survey.questions)
 
-    return render_template('completion.html', survey=survey, survey_length=survey_length)
-    # TODO: break these into separate lines
+    return render_template(
+        'completion.html',
+        survey=survey,
+        survey_length=survey_length
+        )
     # TODO: refactor without the s_l var
