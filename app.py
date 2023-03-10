@@ -9,18 +9,25 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 debug = DebugToolbarExtension(app)
 
 RESPONSES = []
+# all caps usually means this global var will not be changed.
+# TODO: change to lower case
 
 @app.get('/')
 def get_start():
     """ loads homepage with name of survey and start btn """
 
-    return render_template("survey_start.html", survey_title=survey.title,
-                           survey_instructions=survey.instructions)
+    return render_template(
+        "survey_start.html",
+        survey_title=survey.title,
+        survey_instructions=survey.instructions
+    )
 
 
 @app.post('/begin')
 def get_first_question():
     """ on start btn click, redirect to first question """
+
+    # TODO: clear the old responses with the clear method
 
     return redirect('/questions/0')
 
@@ -30,14 +37,16 @@ def get_question(q_num):
     """ shows question form """
 
     return render_template('question.html', question=survey.questions[q_num], q_num=q_num)
-
+    # TODO: break these into separate lines
 
 @app.post('/answer')
 def display_next_question():
     """ redirects to next question or thank you pg. """
+    # TODO: also saves the response - mention in doc string
 
     RESPONSES.append(request.form['answer'])
     q_num = int(request.form['q_num'])
+    # TODO: try grabbing this number from the current length of the responses var
 
     # redirects to thank you pg. after last question
     if q_num >= len(survey.questions) - 1:
@@ -57,3 +66,5 @@ def get_thank_you():
     survey_length = len(survey.questions)
 
     return render_template('completion.html', survey=survey, survey_length=survey_length, responses=RESPONSES)
+    # TODO: break these into separate lines
+    # TODO: refactor without the s_l var
