@@ -8,13 +8,13 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 
 debug = DebugToolbarExtension(app)
 
-RESPONSES = []
 # all caps usually means this global var will not be changed.
 # TODO: change to lower case
 
 @app.get('/')
 def get_start():
     """ loads homepage with name of survey and start btn """
+    session["responses"] = []
 
     return render_template(
         "survey_start.html",
@@ -36,7 +36,13 @@ def get_first_question():
 def get_question(q_num):
     """ shows question form """
 
-    return render_template('question.html', question=survey.questions[q_num], q_num=q_num)
+    if q_num != len(session['responses']):
+        q_num = len(session['responses'])
+        next_url = f'/questions/{q_num}'
+
+        return redirect(next_url)
+    else:
+        return render_template('question.html', question=survey.questions[q_num])
     # TODO: break these into separate lines
 
 @app.post('/answer')
@@ -44,12 +50,15 @@ def display_next_question():
     """ redirects to next question or thank you pg. """
     # TODO: also saves the response - mention in doc string
 
-    RESPONSES.append(request.form['answer'])
-    q_num = int(request.form['q_num'])
+    responses = session["responses"]
+    responses.append(request.form['answer'])
+    session['responses'] = responses
+
+    q_num = len(session['responses'])
     # TODO: try grabbing this number from the current length of the responses var
 
     # redirects to thank you pg. after last question
-    if q_num >= len(survey.questions) - 1:
+    if q_num >= len(survey.questions):
         return redirect("/completion")
 
     # go to next question
@@ -65,6 +74,6 @@ def get_thank_you():
 
     survey_length = len(survey.questions)
 
-    return render_template('completion.html', survey=survey, survey_length=survey_length, responses=RESPONSES)
+    return render_template('completion.html', survey=survey, survey_length=survey_length)
     # TODO: break these into separate lines
     # TODO: refactor without the s_l var
